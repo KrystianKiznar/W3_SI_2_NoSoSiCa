@@ -3,26 +3,27 @@
 #include<stack>
 using namespace std;
 stack<char> my_stack;
-string operators{ "+-*/" };
+string operators{ "/*+-" };
 
 
-//bool IsDigit(char element)
-//{
-//	return element >= '0' && element <= '9';
-//}
-//
-//int str_to_int(string a, int& poz)
-//{
-//	int liczba = 0;
-//	while (poz < a.size() && IsDigit(a[poz]))
-//	{
-//		//schemat Hornera
-//		liczba = liczba * 10 + a[poz] - '0';
-//		++poz;
-//	}
-//	--poz;
-//	return liczba;
-//}
+int GetOperatorsWage(char oper) {
+
+	switch (oper)
+	{
+	case '+':
+		return 1;
+	case '-':
+		return 1;
+	case '*':
+		return 2;
+	case '/':
+		return 2;
+	case '^':
+		return 3;
+	}
+	cout << "Unexpected sign!";
+	return 0;
+}
 
 int MakeCalculation(int a, int b, char oper)
 {
@@ -35,7 +36,9 @@ int MakeCalculation(int a, int b, char oper)
 	case '*':
 		return a * b;
 	case '/':
-		return a / b;//dzielenie calkowite
+		return a / b;
+	case '^':
+		return pow(a, b);
 	}
 	cout << "Unexpected sign!";
 	return 0;
@@ -48,24 +51,29 @@ string ConvertOperationIntoNotation(string operation) {
 		if (x >= '0' && x <= '9')
 			notation += x;
 		else if (!my_stack.size() == 0) {
-			if (operators.find(x) > operators.find(my_stack.top()))
+			if (GetOperatorsWage(x) > GetOperatorsWage(my_stack.top()))
 			{
 				my_stack.push(x);
 			}
 			else
 			{
-				while (!my_stack.empty())
+				while ((my_stack.size() != 0) && GetOperatorsWage(x) <= GetOperatorsWage(my_stack.top()))
 				{
-					notation += my_stack.top();
-					my_stack.pop();
+					if (!my_stack.size() == 0) {
+						notation += my_stack.top();
+						my_stack.pop();
+					}	
+					else
+						break;
 				}
 				my_stack.push(x);
 			}
-			
+
 		}
 		else
 			my_stack.push(x);
 	}
+	
 	while (!my_stack.empty()) {
 		notation += my_stack.top();
 		my_stack.pop();
@@ -75,7 +83,6 @@ string ConvertOperationIntoNotation(string operation) {
 }
 
 int Calculate(string notation) {
-	int result;
 
 	for (auto x : notation) {
 		int value_a, value_b;
@@ -83,7 +90,7 @@ int Calculate(string notation) {
 			my_stack.push(x - 48);
 
 		else {
-			int out;
+
 			value_b = my_stack.top();
 			my_stack.pop();
 			value_a = my_stack.top();
@@ -98,7 +105,7 @@ int Calculate(string notation) {
 
 int main() {
 
-	string operation{ "4*4+3/3" };
+	string operation{ "2+5*3+5^2" };
 	string notation{};
 	int result;
 
@@ -106,6 +113,6 @@ int main() {
 	result = Calculate(notation);
 	cout << "For " << operation << " notation is: " << notation << endl;
 	cout << "For this " << operation << " the output is " << result << endl;
-
+	
 	return 0;
 }
